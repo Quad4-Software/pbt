@@ -383,3 +383,77 @@ func TestGeneratorInputNormalization(t *testing.T) {
 		}
 	}
 }
+
+func TestIntegratedShrinking(t *testing.T) {
+	// No WithShrinker: IntRange attaches IntShrinkerToward(low), so the
+	// counterexample must converge to the range minimum regardless of seed.
+	property := ForAll("auto", IntRange(2, 1000), func(v int) bool {
+		return v < 2
+	})
+	for _, seed := range []int64{0, 42, 777} {
+		result := CheckResult(property, WithRuns(20), WithSeed(seed))
+		if result.Passed {
+			t.Fatal("expected failure")
+		}
+		if result.Counterexample != 2 {
+			t.Fatalf("seed %d: expected minimal counterexample 2, got %d", seed, result.Counterexample)
+		}
+	}
+}
+
+func TestIntegratedShrinkingExplicitWins(t *testing.T) {
+	// An explicit WithShrinker must override the generator's shrinker.
+	noop := ShrinkerFunc[int](func(v int, _ Predicate[int]) (int, bool) {
+		return v, false
+	})
+	property := ForAll("explicit", Int(), func(v int) bool { return v < 0 },
+		WithShrinker(noop))
+	result := CheckResult(property, WithRuns(50), WithSeed(3))
+	if result.Passed {
+		t.Fatal("expected failure")
+	}
+	if len(result.ShrinkTrace) != 0 {
+		t.Fatalf("explicit no-op shrinker was bypassed: %v", result.ShrinkTrace)
+	}
+}
+
+func TestIntegratedShrinkingSliceElements(t *testing.T) {
+	// SliceOf over IntRange gets removal plus element-wise shrinking for
+	// free: the counterexample must converge to a single element at the
+	// range minimum.
+	property := ForAll("slices", SliceOf(IntRange(2, 100), 1, 8), func(v []int) bool {
+		for _, e := range v {
+			if e >= 2 {
+				return false
+			}
+		}
+		return true
+	})
+	for _, seed := range []int64{0, 42, 777} {
+		result := CheckResult(property, WithRuns(20), WithSeed(seed))
+		if result.Passed {
+			t.Fatal("expected failure")
+		}
+		if !reflect.DeepEqual(result.Counterexample, []int{2}) {
+			t.Fatalf("seed %d: expected minimal counterexample [2], got %v", seed, result.Counterexample)
+		}
+	}
+}
+
+func TestSuchThatShrinkStaysInDomain(t *testing.T) {
+	// Shrinking a filtered generator must not leave the filtered domain.
+	gen := SuchThat("even", IntRange(0, 200), func(v int) bool {
+		return v%2 == 0
+	}, 0)
+	property := ForAll("even", gen, func(v int) bool { return v < 100 })
+	result := CheckResult(property, WithRuns(200), WithSeed(17))
+	if result.Passed {
+		t.Fatal("expected failure")
+	}
+	if result.Counterexample%2 != 0 {
+		t.Fatalf("shrunk counterexample left the filtered domain: %d", result.Counterexample)
+	}
+	if result.Counterexample < 100 {
+		t.Fatalf("counterexample does not violate the predicate: %d", result.Counterexample)
+	}
+}

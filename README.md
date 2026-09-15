@@ -43,6 +43,8 @@ func TestStringRoundTrip(t *testing.T) {
 }
 ```
 
+`WithShrinker` is optional: built-in generators carry their own shrinkers, so counterexamples are minimized automatically. `NewGenerator` leaves a generator unshrunk; use `NewShrinkableGenerator` to attach one to a custom generator.
+
 Outside the `testing` package, call `pbt.CheckResult` and inspect the returned result.
 
 ## API overview
@@ -53,7 +55,7 @@ Outside the `testing` package, call `pbt.CheckResult` and inspect the returned r
 - Generators: `Int`, `IntRange`, `Int64`, `Int64Range`, `Uint64`, `Bool`, `Float64`, `StringASCII`, `String`, `Bytes`, `SliceOf`, `MapOf`, `Map`, `DurationRange`, `PtrOf`.
 - Conditional generation: `SuchThat` and `SuchThatFallback` filter source values by predicate. `WithPrecondition` discards cases at the property level.
 - Combinators: `Tuple2`, `Tuple3`, `Product2`, `OneOf`, `Frequency`, `FlatMap`, `Recursive`. `FlatMap` binds the output of one generator into the next, which builds correlated structures.
-- Shrinkers: `IntShrinker`, `IntShrinkerToward`, `Int64Shrinker`, `Int64ShrinkerToward`, `Uint64Shrinker`, `StringShrinker`, `SliceShrinker`, `SliceShrinkerOf`, `BytesShrinker`, `Tuple2Shrinker`, `Tuple3Shrinker`. `SliceShrinkerOf` shrinks elements in place after removing what it can.
+- Shrinkers: `IntShrinker`, `IntShrinkerToward`, `Int64Shrinker`, `Int64ShrinkerToward`, `Uint64Shrinker`, `StringShrinker`, `SliceShrinker`, `SliceShrinkerOf`, `BytesShrinker`, `MapShrinker`, `PtrShrinker`, `DurationShrinkerToward`, `Tuple2Shrinker`, `Tuple3Shrinker`. `SliceShrinkerOf` shrinks elements in place after removing what it can. Shrinking is integrated: generators attach their own shrinkers and `WithShrinker` overrides them.
 - `Sample` draws n values from a generator with a seed for inspecting distributions.
 - Failure triage: `WithClassifier`, `WithLabeler`, `WithBucketer`. Coverage thresholds: `WithLabelCoverageRules`, `WithBucketCoverageRules`. Distribution checks: `AnalyzeDistribution`, `ValidateDistribution`.
 - Stateful testing: `CheckStateful`, `CheckStatefulResult`, `CommandSequence`.
