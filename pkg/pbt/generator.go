@@ -216,9 +216,8 @@ func Bytes(low int, high int) Generator[[]byte] {
 		}
 
 		out := make([]byte, length)
-		for i := range out {
-			out[i] = byte(r.Intn(256))
-		}
+		// rand.Rand.Read fills the slice deterministically and never fails.
+		_, _ = r.Read(out)
 		return out
 	})
 }
