@@ -19,7 +19,7 @@ const goroutineSlack = 4
 // or the deadline passes, returning the last observed count.
 func waitForGoroutines(want int, timeout time.Duration) int {
 	deadline := time.Now().Add(timeout)
-	last := runtime.NumGoroutine()
+	var last int
 	for {
 		runtime.GC()
 		runtime.Gosched()

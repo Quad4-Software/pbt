@@ -78,7 +78,7 @@ func TestWithRunsPanicsOnInvalid(t *testing.T) {
 			t.Fatalf("expected panic for WithRuns(0)")
 		}
 	}()
-	pbt.CheckResult(
+	_ = pbt.CheckResult(
 		pbt.ForAll("x", pbt.IntRange(1, 1), func(int) bool { return true }),
 		pbt.WithRuns(0),
 		pbt.WithSeed(1),
@@ -91,7 +91,7 @@ func TestWithMaxSizePanicsOnInvalid(t *testing.T) {
 			t.Fatalf("expected panic for WithMaxSize(-1)")
 		}
 	}()
-	pbt.CheckResult(
+	_ = pbt.CheckResult(
 		pbt.ForAll("x", pbt.IntRange(1, 1), func(int) bool { return true }),
 		pbt.WithMaxSize(-1),
 		pbt.WithSeed(1),

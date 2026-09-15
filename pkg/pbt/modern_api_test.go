@@ -259,8 +259,32 @@ func TestSampleDeterministic(t *testing.T) {
 }
 
 func TestFullRangeGeneratorsDoNotPanic(t *testing.T) {
-	Check(t, ForAll("int64", Int64(), func(v int64) bool { return v == v }), WithRuns(50))
-	Check(t, ForAll("uint64", Uint64(), func(v uint64) bool { return v <= math.MaxUint64 }), WithRuns(50))
+	// Full-range generators must produce deterministic, varied output.
+	a := Sample(Int64(), 100, 7)
+	b := Sample(Int64(), 100, 7)
+	if !reflect.DeepEqual(a, b) {
+		t.Fatal("Int64 not deterministic for the same seed")
+	}
+	distinct := map[int64]bool{}
+	for _, v := range a {
+		distinct[v] = true
+	}
+	if len(distinct) < 90 {
+		t.Fatalf("Int64 produced too few distinct values: %d", len(distinct))
+	}
+
+	ua := Sample(Uint64(), 100, 7)
+	ub := Sample(Uint64(), 100, 7)
+	if !reflect.DeepEqual(ua, ub) {
+		t.Fatal("Uint64 not deterministic for the same seed")
+	}
+	udistinct := map[uint64]bool{}
+	for _, v := range ua {
+		udistinct[v] = true
+	}
+	if len(udistinct) < 90 {
+		t.Fatalf("Uint64 produced too few distinct values: %d", len(udistinct))
+	}
 }
 
 func TestSliceElemShrinkerTrace(t *testing.T) {
@@ -338,8 +362,8 @@ func TestGeneratorInputNormalization(t *testing.T) {
 		}
 	}
 	for _, v := range Sample(Bytes(-5, -1), 20, seed) {
-		if len(v) < 0 {
-			t.Fatalf("normalized Bytes negative length: %d", len(v))
+		if len(v) != 0 {
+			t.Fatalf("normalized Bytes produced non-empty slice: %d", len(v))
 		}
 	}
 	for _, s := range Sample(String(9, 2), 20, seed) {

@@ -424,31 +424,31 @@ func TestStatefulValidationPanics(t *testing.T) {
 	assertPanics(t, func() {
 		m := valid()
 		m.Init = nil
-		pbt.CheckStatefulResult(m)
+		_ = pbt.CheckStatefulResult(m)
 	})
 	assertPanics(t, func() {
 		m := valid()
 		m.Invariant = nil
-		pbt.CheckStatefulResult(m)
+		_ = pbt.CheckStatefulResult(m)
 	})
 	assertPanics(t, func() {
 		m := valid()
 		m.Commands = nil
-		pbt.CheckStatefulResult(m)
+		_ = pbt.CheckStatefulResult(m)
 	})
 	assertPanics(t, func() {
 		m := valid()
 		m.Commands = []pbt.StatefulCommand[int]{addCommand{}, nil}
-		pbt.CheckStatefulResult(m)
+		_ = pbt.CheckStatefulResult(m)
 	})
 	assertPanics(t, func() {
-		pbt.CheckStatefulResult(valid(), pbt.Option(func(c *pbt.Config) { c.Timeout = -time.Second }))
+		_ = pbt.CheckStatefulResult(valid(), pbt.Option(func(c *pbt.Config) { c.Timeout = -time.Second }))
 	})
 	assertPanics(t, func() {
-		pbt.CheckStatefulResult(valid(), pbt.Option(func(c *pbt.Config) { c.ShrinkParallelism = 0 }))
+		_ = pbt.CheckStatefulResult(valid(), pbt.Option(func(c *pbt.Config) { c.ShrinkParallelism = 0 }))
 	})
 	assertPanics(t, func() {
-		pbt.CheckStatefulResult(valid(), pbt.WithRuns(0))
+		_ = pbt.CheckStatefulResult(valid(), pbt.WithRuns(0))
 	})
 }
 
