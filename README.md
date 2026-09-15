@@ -47,12 +47,14 @@ Outside the `testing` package, call `pbt.CheckResult` and inspect the returned r
 
 ## API overview
 
-- `ForAll` builds a property from a generator and a predicate. `Check` runs it and fails the test on the first counterexample. `CheckResult` runs it and returns a structured result.
-- `WithRuns`, `WithMaxSize`, `WithSeed`, and `WithTimeout` configure the run. `WithParallelism` splits seed partitions across workers. `WithShrinkParallelism` tunes shrink workers.
-- Generators: `Int`, `IntRange`, `Bool`, `Float64`, `StringASCII`, `SliceOf`, `Map`.
-- Conditional generation: `SuchThat` and `SuchThatFallback` filter source values by predicate.
-- Combinators: `Tuple2`, `Tuple3`, `Product2`, `OneOf`, `Frequency`, `Recursive`.
-- Shrinkers: `IntShrinker`, `StringShrinker`, `SliceShrinker`.
+- `ForAll` builds a property from a generator and a predicate. `ForAll2` and `ForAll3` take two or three generators and pass the values to the predicate directly. `Check` runs it and fails the test on the first counterexample. `CheckResult` runs it and returns a structured result.
+- `WithPrecondition` rejects generated cases before the predicate runs, like QuickCheck implication. Rejected cases count in `Result.Skipped` and generation continues until `Runs` evaluated cases; if rejects exceed `MaxDiscards` the run fails with `Result.Exhausted`.
+- `WithRuns`, `WithMaxSize`, `WithSeed`, `WithTimeout`, and `WithMaxDiscards` configure the run. `WithParallelism` splits seed partitions across workers. `WithShrinkParallelism` tunes shrink workers.
+- Generators: `Int`, `IntRange`, `Int64`, `Int64Range`, `Uint64`, `Bool`, `Float64`, `StringASCII`, `String`, `Bytes`, `SliceOf`, `MapOf`, `Map`, `DurationRange`, `PtrOf`.
+- Conditional generation: `SuchThat` and `SuchThatFallback` filter source values by predicate. `WithPrecondition` discards cases at the property level.
+- Combinators: `Tuple2`, `Tuple3`, `Product2`, `OneOf`, `Frequency`, `FlatMap`, `Recursive`. `FlatMap` binds the output of one generator into the next, which builds correlated structures.
+- Shrinkers: `IntShrinker`, `IntShrinkerToward`, `Int64Shrinker`, `Int64ShrinkerToward`, `Uint64Shrinker`, `StringShrinker`, `SliceShrinker`, `SliceShrinkerOf`, `BytesShrinker`, `Tuple2Shrinker`, `Tuple3Shrinker`. `SliceShrinkerOf` shrinks elements in place after removing what it can.
+- `Sample` draws n values from a generator with a seed for inspecting distributions.
 - Failure triage: `WithClassifier`, `WithLabeler`, `WithBucketer`. Coverage thresholds: `WithLabelCoverageRules`, `WithBucketCoverageRules`. Distribution checks: `AnalyzeDistribution`, `ValidateDistribution`.
 - Stateful testing: `CheckStateful`, `CheckStatefulResult`, `CommandSequence`.
 - Replay: `SerializeCounterexample`, `DeserializeCounterexample`, `Result.ToReplayFixture`, `ReplayFixtureFile`, `ReplayStatefulFixtureFile`.

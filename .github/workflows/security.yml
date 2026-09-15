@@ -20,7 +20,7 @@ env:
   GOTOOLCHAIN: local
   CI_GO_VERSION: "1.27.1"
   CI_GOSEC_VERSION: "v2.27.1"
-  CI_GOVULNCHECK_VERSION: "v1.1.4"
+  CI_GOVULNCHECK_VERSION: "v1.8.0"
 
 jobs:
   dependency-review:

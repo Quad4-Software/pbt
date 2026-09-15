@@ -188,10 +188,10 @@ func TestEvaluateCoverageThresholdSemantics(t *testing.T) {
 
 	errs := evaluateCoverage(CoverageConfig{
 		LabelRules: []CoverageRule{
-			{Key: "a", MinCount: 4},              // 3 < 4 fails
-			{Key: "b", MinPercent: 1},            // 0/20 fails
-			{Key: "a", MinPercent: 10},           // 15% ok
-			{Key: "missing", MinCount: 1},        // absent key fails
+			{Key: "a", MinCount: 4},       // 3 < 4 fails
+			{Key: "b", MinPercent: 1},     // 0/20 fails
+			{Key: "a", MinPercent: 10},    // 15% ok
+			{Key: "missing", MinCount: 1}, // absent key fails
 		},
 		BucketRules: []CoverageRule{
 			{Key: "x", MinPercent: 50}, // exactly 50% passes
